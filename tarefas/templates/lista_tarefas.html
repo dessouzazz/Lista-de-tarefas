@@ -3,14 +3,39 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lista de Tarefas</title>
+        <title>Lista de Tarefas</title>
     </head>
     <body>
+
+        {% if user.is_authenticated %}
+        <p>Bem-vindo, {{ user.username }}! 
+       <form action="{% url 'logout' %}" method="post">
+           {% csrf_token %}
+           <button type="submit">Sair</button>
+       </form>        
+        </p>
+        {% else %}
+        <a href="{% url 'login' %}">Entrar</a>
+        {% endif %}
+
         <h1>Minha Lista de Tarefas</h1>
+        <form method="POST">
+            {% csrf_token %}
+            <input type="text" name="titulo" placeholder="Adicione uma nova tarefa" required>
+            <button type="submit">Adicionar</button>
+        </form>
+
         <ul>
-        {% for tarefa in tarefas %}
-        <li>{{ tarefa }}</li>
-        {% endfor %}
+            {% for tarefa in tarefas %}
+                <li>
+                    {{ tarefa.titulo }} - {% if tarefa.concluida %}Concluída{% else %}Pendente{% endif %}
+                    <a href="{% url 'excluir_tarefa' tarefa.id %}">Excluir</a>
+                    {% if not tarefa.concluida %}
+                        <a href="{% url 'concluir_tarefa' tarefa.id %}">Concluir</a>
+                    {% endif %}
+                    <a href="{% url 'editar_tarefa' tarefa.id %}">Editar</a>
+                </li>
+            {% endfor %}
         </ul>
     </body>
 </html>
